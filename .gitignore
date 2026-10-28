@@ -1,0 +1,10 @@
+# Local Proteus session and backup files
+*.pdsprj.*
+*.bak
+*.tmp
+*.log
+Last Loaded *.DBK
+
+# Operating system files
+.DS_Store
+Thumbs.db
