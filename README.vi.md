@@ -1,77 +1,71 @@
-# Bộ điều khiển đèn giao thông — FSM & Proteus
+# Bộ điều khiển đèn giao thông
 
-Đồ án nhóm thiết kế bộ điều khiển đèn giao thông bằng mạch logic số, kết hợp FSM 3 trạng thái và bộ đếm lùi BCD hiển thị trên LED 7 đoạn.
+**Thái Trung Sinh** · Mạch logic số · FSM · Proteus
 
-**Người trình bày portfolio:** Thái Trung Sinh
+[English](README.md) · [Chi tiết thiết kế](docs/design.md) · [Slide đồ án](docs/technical-slides.pdf) · [Mạch Proteus](proteus/TrafficLight.pdsprj)
 
-[English](README.md) · [Chi tiết thiết kế](docs/design.md) · [Slide kỹ thuật](docs/technical-slides.pdf) · [Mạch Proteus](proteus/TrafficLight.pdsprj)
+Đây là đồ án nhóm về bộ điều khiển đèn giao thông có hiển thị đếm ngược. Trong đồ án, tôi phụ trách lập bảng trạng thái, thiết kế logic FSM, rút gọn Karnaugh, kết hợp mạch đếm lùi BCD với LED 7 đoạn và mô phỏng trên Proteus.
 
-![Mạch đèn giao thông trích từ slide 25](assets/proteus-schematic.png)
+## Phần tôi thực hiện
 
-*Ảnh mạch được trích nguyên bản từ slide 25 của đồ án.*
+- Lập bảng trạng thái cho ba pha xanh, vàng và đỏ.
+- Thiết kế FSM 3 trạng thái, rút gọn hàm điều khiển bằng bảng Karnaugh.
+- Kết nối bộ đếm lùi BCD 74192 với LED 7 đoạn.
+- Thiết kế và mô phỏng mạch điều khiển trên Proteus.
 
-## Phần công việc tôi thực hiện
+Mạch và bài trình bày là sản phẩm của nhóm. Các công việc liệt kê trên là phần đóng góp của tôi.
 
-Theo phần đóng góp cá nhân trong CV:
+## Mạch điều khiển
 
-- Lập bảng trạng thái, thiết kế logic và mô phỏng bộ điều khiển đèn giao thông bằng Proteus.
-- Thiết kế FSM 3 trạng thái và rút gọn hàm logic bằng bảng Karnaugh.
-- Kết hợp bộ đếm lùi BCD 74192 với LED 7 đoạn để hiển thị thời gian đếm ngược.
+![Mạch đèn giao thông trên Proteus](assets/proteus-schematic.png)
 
-Đây là **đồ án nhóm**. Slide và toàn bộ mạch là sản phẩm chung; repository này trình bày rõ phần công việc cá nhân của tôi trong đồ án.
+*Hình mạch trong bài trình bày của nhóm.*
 
-## Nguyên lý hoạt động
+Mạch chuyển pha theo thứ tự **Xanh → Vàng → Đỏ → Xanh**. Hai IC 74192 tạo bộ đếm hai chữ số dùng cho pha xanh và đỏ. IC 74192 còn lại dùng cho pha vàng. FSM chọn nhánh đếm đang hoạt động và điều khiển các đèn.
 
-Hệ thống chuyển pha theo thứ tự **Xanh → Vàng → Đỏ → Xanh**. Hai IC 74192 tạo nhánh đếm hai chữ số dùng cho pha xanh và đỏ; một IC 74192 tạo nhánh đếm một chữ số cho pha vàng. FSM điều khiển tín hiệu cho phép đếm và các đèn báo.
-
-![Sơ đồ khối gốc](assets/block-diagram.png)
-
-| Khối | Chức năng |
+| Linh kiện | Vai trò trong mạch |
 | --- | --- |
-| FSM 3 trạng thái | Chọn pha và điều khiển các tín hiệu enable |
-| Bộ đếm 74192 | Tạo giá trị BCD đếm lùi |
-| Bộ giải mã 74LS247 | Giải mã BCD để điều khiển LED 7 đoạn |
+| 74192 | Đếm lùi BCD |
+| 74LS247 | Giải mã BCD sang LED 7 đoạn |
 | LED 7 đoạn | Hiển thị giá trị đếm |
-| Flip-flop 4013 và cổng logic | Lưu trạng thái và thực hiện logic điều khiển |
+| Flip-flop 4013 | Lưu trạng thái FSM |
+| Cổng logic | Tạo logic trạng thái kế tiếp, tín hiệu enable và đầu ra đèn |
 
-Tên linh kiện trên được đối chiếu trong file Proteus. Slide cũng giới thiệu các bộ giải mã họ 7447/74LS47.
+![Sơ đồ khối](assets/block-diagram.png)
 
-## Máy trạng thái
+## Thiết kế FSM
 
-Quy ước mã trạng thái theo thứ tự `s0 s1` trong slide. `C1=1` khi nhánh đếm xanh/đỏ kết thúc; `C2=1` khi nhánh đếm vàng kết thúc.
+Tôi sử dụng ba trạng thái: A ứng với đèn xanh, B ứng với đèn vàng và C ứng với đèn đỏ. Mã trạng thái được viết theo thứ tự `s0 s1`.
 
-| Trạng thái | Mã | Đèn sáng | `en1` | `en2` | Điều kiện chuyển |
+- `C1 = 1`: nhánh đếm xanh/đỏ đã kết thúc.
+- `C2 = 1`: nhánh đếm vàng đã kết thúc.
+- `en1`: cho phép nhánh đếm xanh/đỏ hoạt động.
+- `en2`: cho phép nhánh đếm vàng hoạt động.
+
+| Trạng thái | Mã | Đèn sáng | `en1` | `en2` | Trạng thái kế tiếp |
 | --- | --- | --- | --- | --- | --- |
-| A | `00` | Xanh | 1 | 0 | `C1=0`: giữ A; `C1=1`: sang B |
-| B | `01` | Vàng | 0 | 1 | `C2=0`: giữ B; `C2=1`: sang C |
-| C | `10` | Đỏ | 1 | 0 | `C1=0`: giữ C; `C1=1`: sang A |
+| A | `00` | Xanh | 1 | 0 | Giữ A khi `C1=0`; sang B khi `C1=1` |
+| B | `01` | Vàng | 0 | 1 | Giữ B khi `C2=0`; sang C khi `C2=1` |
+| C | `10` | Đỏ | 1 | 0 | Giữ C khi `C1=0`; sang A khi `C1=1` |
 
-![Sơ đồ FSM gốc](assets/fsm-diagram.png)
+![FSM ba trạng thái](assets/fsm-diagram.png)
 
-Các bảng Karnaugh và phương trình điều khiển được trình bày trong [tài liệu thiết kế](docs/design.md).
+Bảng trạng thái đầy đủ, bảng Karnaugh và các phương trình rút gọn nằm trong [tài liệu thiết kế](docs/design.md).
 
-## Mở và mô phỏng
+## Chạy mạch trên Proteus
 
-1. Tải repository về máy.
-2. Mở [`proteus/TrafficLight.pdsprj`](proteus/TrafficLight.pdsprj) bằng phiên bản Proteus tương thích và có các mô hình linh kiện cần thiết.
-3. Kiểm tra nguồn clock, dữ liệu nạp trước của các bộ đếm và trạng thái khởi tạo FSM.
-4. Chạy mô phỏng, quan sát thứ tự sáng đèn và giá trị đếm trên LED 7 đoạn.
+1. Tải hoặc clone repository về máy.
+2. Mở file [`TrafficLight.pdsprj`](proteus/TrafficLight.pdsprj) bằng Proteus.
+3. Kiểm tra nguồn clock, giá trị nạp trước của bộ đếm và trạng thái khởi tạo FSM.
+4. Chạy mô phỏng, quan sát LED đếm ngược và quá trình chuyển đèn.
 
-File Proteus được giữ nguyên. Việc chuẩn bị repository chưa bao gồm chạy lại mô phỏng; tài liệu không khẳng định tần số clock hay thời lượng cụ thể của từng pha.
+Thời gian từng pha phụ thuộc vào nguồn clock và giá trị nạp trong mạch. Các hình minh họa trong repository được lấy từ slide đồ án.
 
-## Tài liệu trong repository
+## Các file chính
 
 | Đường dẫn | Nội dung |
 | --- | --- |
-| [`proteus/TrafficLight.pdsprj`](proteus/TrafficLight.pdsprj) | File mạch gốc |
-| [`assets/`](assets/) | Hình mạch, FSM, bảng trạng thái và Karnaugh trích từ slide |
-| [`docs/design.md`](docs/design.md) | Chi tiết logic và nguồn hình |
-| [`docs/technical-slides.pdf`](docs/technical-slides.pdf) | Sáu trang kỹ thuật trích từ slide gốc (trang 5 và 21–25) |
-
-## Kỹ năng thể hiện
-
-Thiết kế FSM, mã hóa trạng thái, lập bảng trạng thái, rút gọn Karnaugh, bộ đếm BCD, giải mã LED 7 đoạn và mô phỏng mạch số bằng Proteus.
-
-## Bối cảnh đồ án
-
-Dự án được thực hiện trong khuôn khổ đồ án nhóm 2 tại trường đại học. Repository trình bày phần đóng góp cá nhân của tôi trong sản phẩm chung.
+| [`proteus/TrafficLight.pdsprj`](proteus/TrafficLight.pdsprj) | File mạch Proteus |
+| [`docs/design.md`](docs/design.md) | Bảng trạng thái, Karnaugh và phương trình |
+| [`docs/technical-slides.pdf`](docs/technical-slides.pdf) | Các trang thiết kế trong bài trình bày nhóm |
+| [`assets/`](assets/) | Hình mạch và hình thiết kế |

@@ -1,6 +1,6 @@
 # Design notes
 
-These notes transcribe the controller design from slides 21–24 of the [technical slide excerpts](technical-slides.pdf). They document the intended logic; they are not a new simulation report.
+The controller uses a three-state FSM to select the traffic light phase and the active countdown branch. This document covers the state table and logic equations.
 
 ## State and output table
 
@@ -14,7 +14,7 @@ These notes transcribe the controller design from slides 21–24 of the [technic
 
 ![State assignment table extracted from slide 22](../assets/state-assignment-table.png)
 
-The original table defines three legal states. Behavior for encoding `11` is unspecified in that table; the Karnaugh maps use it as a don't-care. Recovery from an illegal state is therefore not claimed.
+State `11` is unused and is treated as a don't-care in the Karnaugh maps. The state table does not define recovery from this encoding.
 
 ## Karnaugh simplification
 
@@ -49,25 +49,19 @@ These equations reproduce the table for the three legal state encodings.
 
 ## Countdown and display path
 
-The presentation describes three 74192 BCD counters: two digits for the green/red branch and one for yellow. The supplied schematic contains 74LS247 display decoders, seven-segment displays, 4013 state storage and logic gates.
+The circuit uses three 74192 BCD counters: two digits for the green/red branch and one for yellow. The display path uses 74LS247 decoders and seven-segment displays. The FSM uses 4013 flip-flops and logic gates.
 
-At the FSM interface, `C1` is treated as completion of the entire green/red branch, and `C2` as completion of the yellow branch. Slide 21 gives a four-bit zero-detection expression. For the two-digit branch, the full zero condition must account for both BCD digits; this document does not infer a complete two-digit detector from that abbreviated expression.
+`C1` signals completion of the green/red countdown, and `C2` signals completion of the yellow countdown. For a two-digit countdown, detecting `00` requires checking both BCD digits. The four-bit zero-detection expression on slide 21 describes a single digit.
 
-## Evidence and scope
+## Project figures
 
-| Asset or claim | Source |
+The figures below come from the group presentation. The [slide PDF](technical-slides.pdf) contains original pages 5 and 21–25; the page numbers here refer to that presentation.
+
+| Figure | Original page |
 | --- | --- |
-| Individual contribution | Traffic light project bullets in the supplied CV |
-| Block diagram | Presentation, page 5 |
-| FSM diagram | Presentation, page 21 |
-| State-assigned table | Presentation, page 22 |
-| Next-state and enable Karnaugh maps | Presentation, pages 23–24 |
-| Light-output equations | Presentation, page 24 |
-| Full circuit image | Presentation, page 25 |
-| Editable circuit project | Original `TrafficLight.pdsprj`, preserved byte-for-byte |
-
-Figures are extracted from the embedded images in the supplied PDF. Original labels, spelling and circuit wiring are preserved. The schematic image comes from the presentation and has not been established as a fresh capture of the attached project file.
-
-The contribution is documented as a gate-level digital logic and Proteus project. The supplied materials contain no Verilog/VHDL source, FPGA implementation results, automated testbench, or new waveform captures.
-
-The public slide PDF includes only original pages 5 and 21–25. Page numbers in this document refer to the original presentation.
+| Block diagram | 5 |
+| FSM diagram | 21 |
+| State table | 22 |
+| Next-state and enable Karnaugh maps | 23–24 |
+| Light-output equations | 24 |
+| Proteus circuit | 25 |
